@@ -20,7 +20,91 @@
 </head>
 
 <body>
-    <h1>📊 Real-Time Dashboard </h1>
+ <div class="container mt-5">
+        <h1 class="text-center">📊 Real-Time Dashboard</h1>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Crypto Price</h3>
+                <canvas id="cryptoChart"></canvas>
+            </div>
+
+            <div class="col-md-6">
+                <h3>Weather</h3>
+
+                <!-- City input -->
+                <div class="mb-3">
+                    <input id="cityInput" type="text" class="form-control" placeholder="Enter city name" />
+                    <button id="fetchWeatherBtn" class="btn btn-primary mt-2">Get Weather</button>
+                </div>
+
+                <div id="weatherInfo"></div>
+
+                <canvas id="weatherChart" style="margin-top: 20px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+
+
+// 2222222222222222222222222222222
+
+
+
+
+    <script>
+        // Crypto Chart setup (same as before)
+        const ctxCrypto = document.getElementById('cryptoChart').getContext('2d');
+        let cryptoChartData = {
+            labels: [],
+            datasets: [{
+                label: 'Bitcoin (USD)',
+                data: [],
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 2
+            }]
+        };
+        const cryptoChart = new Chart(ctxCrypto, {
+            type: 'line',
+            data: cryptoChartData,
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+
+        async function fetchCryptoData() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const data = await res.json();
+                return data.bitcoin.usd;
+            } catch (e) {
+                console.error('Error fetching crypto data:', e);
+                return null;
+            }
+        }
+ 
+        async function updateCryptoChart() {
+            const price = await fetchCryptoData();
+            if (price === null) return;
+
+            const now = new Date().toLocaleTimeString();
+            cryptoChartData.labels.push(now);
+            cryptoChartData.datasets[0].data.push(price);
+
+            if (cryptoChartData.labels.length > 10) {
+                cryptoChartData.labels.shift();
+                cryptoChartData.datasets[0].data.shift();
+            }
+
+            cryptoChart.update();
+        }
+
+
+
+</script>
 </body>
 
 </html>
