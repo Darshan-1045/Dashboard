@@ -153,6 +153,65 @@
 
 
 
+        // Fetch weather data for a city
+        async function fetchWeather(city) {
+            const apiKey = 'f593a0c683939642bb99650568cbd2e1'; // Your API key
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+                );
+                const data = await response.json();
+                if (data.cod !== 200) {
+                    throw new Error(data.message);
+                }
+                return {
+                    temp: data.main.temp,
+                    humidity: data.main.humidity,
+                    description: data.weather[0].description,
+                    cityName: data.name
+                };
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                return null;
+            }
+        }
+
+        // Update weather display and chart
+        async function updateWeather(city) {
+            const weather = await fetchWeather(city);
+            const weatherInfoDiv = document.getElementById('weatherInfo');
+
+            if (!weather) {
+                weatherInfoDiv.innerText = 'Failed to load weather data for "' + city + '". Please try another city.';
+                return;
+            }
+
+            weatherInfoDiv.innerHTML = `
+                <p><strong>City:</strong> ${weather.cityName}</p>
+                <p>🌡️ Temperature: ${weather.temp}°C</p>
+                <p>💧 Humidity: ${weather.humidity}%</p>
+                <p>☁️ Condition: ${weather.description}</p>
+            `;
+
+            // Add data to weather chart
+            const now = new Date().toLocaleTimeString();
+            weatherChartData.labels.push(now);
+            weatherChartData.datasets[0].data.push(weather.temp);
+            weatherChartData.datasets[1].data.push(weather.humidity);
+
+            // Keep last 10 entries max
+            if (weatherChartData.labels.length > 10) {
+                weatherChartData.labels.shift();
+                weatherChartData.datasets[0].data.shift();
+                weatherChartData.datasets[1].data.shift();
+            }
+
+            weatherChart.update();
+        }
+
+
+
+
 
 </script>
 </body>
