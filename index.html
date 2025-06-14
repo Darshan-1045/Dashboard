@@ -209,6 +209,40 @@
             weatherChart.update();
         }
 
+// Initial calls
+        updateCryptoChart();
+        updateWeather('Bangalore'); // default city
+
+        // Set intervals for crypto and weather updates
+ 
+
+        // Weather update will be triggered manually or every 60s for current city
+        let weatherUpdateInterval = null;
+
+        // Handle city input button click
+        document.getElementById('fetchWeatherBtn').addEventListener('click', () => {
+            const city = document.getElementById('cityInput').value.trim();
+            if (!city) {
+                alert('Please enter a city name.');
+                return;
+            }
+            // Clear previous data from chart
+            weatherChartData.labels = [];
+            weatherChartData.datasets[0].data = [];
+            weatherChartData.datasets[1].data = [];
+            weatherChart.update();
+
+            // Update weather for new city immediately
+            updateWeather(city);
+
+            // Clear any existing interval and set new one for this city
+            if (weatherUpdateInterval) clearInterval(weatherUpdateInterval);
+            weatherUpdateInterval = setInterval(() => updateWeather(city), 5000);
+        });
+
+        // Optionally, update weather for default city every 60s if user hasn't entered any city
+        weatherUpdateInterval = setInterval(() => updateWeather(document.getElementById('cityInput').value.trim() || 'Bangalore'), 5000);
+
 
 
 
